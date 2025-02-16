@@ -1,12 +1,13 @@
 .stock-dashboard {
-    display: flex;
+    display: block;
 }
-
+body{
+    color: #282c34;
+}
 .content {
     flex-grow: 1;
     padding: 16px;
     margin-left: 240px;
-
 }
 
 .admin-heading {
@@ -21,6 +22,12 @@
     cursor: pointer;
 }
 
-#outlined-basic{
-    width: 100%;
+.overview {
+    border: 1px solid red;
+    padding: 10px;
+    height: auto;
+    margin-left: 255px;
+    margin-right: 28px;
+    margin-bottom: 30px;
+    background-color: white;
 }
