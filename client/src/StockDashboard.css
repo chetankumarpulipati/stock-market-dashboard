@@ -1,0 +1,26 @@
+.stock-dashboard {
+    display: flex;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 16px;
+    margin-left: 240px;
+
+}
+
+.admin-heading {
+    font-weight: bold;
+    font-size: 1.2em;
+    padding: 16px;
+    color: white;
+    background-color: #333;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+#outlined-basic{
+    width: 100%;
+}
