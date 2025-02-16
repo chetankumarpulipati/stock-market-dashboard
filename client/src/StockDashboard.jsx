@@ -14,7 +14,6 @@ import './StockDashboard.css';
 import InputAdornment from '@mui/material/InputAdornment';
 import NotificationDrawer from './NotificationDrawer';
 import MessageDrawer from './MessageDrawer';
-import StockOverview from './StockOverview';
 import axios from 'axios';
 
 function StockDashboard() {
@@ -22,9 +21,7 @@ function StockDashboard() {
     const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
     const [drawerType, setDrawerType] = useState('');
     const [companyName, setCompanyName] = useState('');
-    const [stockData, setStockData] = useState([]);
-    const [investedValue, setInvestedValue] = useState(0);
-    const [totalReturns, setTotalReturns] = useState(0);
+    const [data, setData] = useState(null);
 
     const handleClick = (item) => {
         setOpenItems((prevOpenItems) => ({
@@ -35,13 +32,15 @@ function StockDashboard() {
 
     const handleKeyPress = async (event) => {
         if (event.key === 'Enter') {
-            console.log(companyName); // Print the text in the search box
+            console.log(companyName);
             try {
-                const response = await axios.get(`http://localhost:5000/api/stocks/${companyName}`);
-                setStockData(response.data);
-                // Assuming the backend response contains investedValue and totalReturns
-                setInvestedValue(response.data.investedValue);
-                setTotalReturns(response.data.totalReturns);
+                const response = await axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${companyName}&apikey=M2LDGKJSHW7PTYJ5`);
+                if(!response.data["Error Message"]){
+                    console.log(response.data);
+                    setData(response.data)
+                } else {
+                    setData({error: 'No Company Found'});
+                }
             } catch (error) {
                 console.error('Error fetching stock data', error);
             }
@@ -89,7 +88,7 @@ function StockDashboard() {
                                 </ListItem>
                             ) : (
                                 <div key={index}>
-                                    <ListItem button onClick={() => handleClick(item.text)}>
+                                    <ListItem onClick={() => handleClick(item.text)}>
                                         <ListItemIcon className="cursor-pointer" sx={{color: 'white'}}>
                                             {item.icon}
                                         </ListItemIcon>
@@ -100,7 +99,7 @@ function StockDashboard() {
                                         <Collapse in={openItems[item.text]} timeout="auto" unmountOnExit>
                                             <List component="div" disablePadding>
                                                 {item.submenu.map((subItem, subIndex) => (
-                                                    <ListItem button key={subIndex} sx={{pl: 4}} className="cursor-pointer">
+                                                    <ListItem key={subIndex} sx={{pl: 4}} className="cursor-pointer">
                                                         <ListItemText primary={subItem}/>
                                                     </ListItem>
                                                 ))}
@@ -166,13 +165,41 @@ function StockDashboard() {
                         <PersonIcon style={{borderStyle: 'solid', borderWidth: '2px', borderRadius: '50px'}}
                                     sx={{fontSize: '28px'}}/>
                     </div>
-                    {drawerType === 'notifications' &&
-                        <NotificationDrawer open={rightDrawerOpen} onClose={toggleRightDrawer(false)}/>}
-                    {drawerType === 'messages' &&
-                        <MessageDrawer open={rightDrawerOpen} onClose={toggleRightDrawer(false)}/>}
+                    {drawerType === 'notifications' && (
+                        <NotificationDrawer open={rightDrawerOpen} onClose={toggleRightDrawer(false)}/>
+                    )}
+                    {drawerType === 'messages' && (
+                        <MessageDrawer open={rightDrawerOpen} onClose={toggleRightDrawer(false)}/>
+                    )}
                 </main>
             </div>
-            {/*<StockOverview stockData={stockData} investedValue={investedValue} totalReturns={totalReturns} />*/}
+            <div className="overview">
+                {data ? (
+                    <>
+                        {data.error ? (
+                            <div>No Company Found</div>
+                        ) : (
+                            <div>
+                                <h2>Symbol: {data["Meta Data"]["2. Symbol"]}</h2>
+                                {Object.entries(data["Time Series (Daily)"]).map(([date, item], index) => (
+                                    <div key={index} className="stock-item">
+                                        <h3>Date: {date}</h3>
+                                        <p>Open: {item["1. open"]}</p>
+                                        <p>High: {item["2. high"]}</p>
+                                        <p>Low: {item["3. low"]}</p>
+                                        <p>Close: {item["4. close"]}</p>
+                                        <p>Volume: {item["5. volume"]}</p>
+                                        <hr/>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <div>No Data found</div>
+                )}
+            </div>
+
         </div>
     );
 }
